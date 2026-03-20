@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function EnterPage() {
   const router = useRouter();
-  const { user, isLoading, createAnonymousUser } = useAuth();
+  const { user, isLoading } = useAuth();
   const turnstileRef = useRef<TurnstileCaptchaHandle | null>(null);
   const turnstileEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
@@ -26,7 +26,7 @@ export default function EnterPage() {
     }
   }, [isLoading, user, router]);
 
-  const handleEnter = async () => {
+  const handleLogin = async () => {
     if (turnstileEnabled && !captchaToken) {
       setErrorMessage('请先完成人机验证');
       return;
@@ -35,18 +35,8 @@ export default function EnterPage() {
     setSubmitting(true);
     setErrorMessage(null);
 
-    const { error } = await createAnonymousUser(
-      turnstileEnabled ? captchaToken ?? undefined : undefined,
-    );
-
-    if (error) {
-      setErrorMessage('创建会话失败，请重试');
-      turnstileRef.current?.reset();
-      setSubmitting(false);
-      return;
-    }
-
-    router.replace('/game');
+    // 跳转到登录页面
+    router.push('/login');
   };
 
   if (isLoading || user) {
@@ -84,7 +74,7 @@ export default function EnterPage() {
           <p className="text-ink-secondary text-sm leading-relaxed">
             你正站在凡尘与道界交界处。
             <br />
-            完成仪式后，将以匿名神识踏入万界道友录。
+            请使用邮箱登录万界道友录。
           </p>
         </div>
 
@@ -143,16 +133,12 @@ export default function EnterPage() {
             ) : null}
 
             <InkButton
-              onClick={handleEnter}
+              onClick={handleLogin}
               variant="primary"
               disabled={submitting}
               className="w-full text-base"
             >
-              {submitting ? '界门开启中…' : '踏入道界'}
-            </InkButton>
-
-            <InkButton href="/login" variant="secondary" className="w-full">
-              邮箱登录
+              {submitting ? '界门开启中…' : '邮箱登录'}
             </InkButton>
 
             <InkButton href="/" variant="secondary" className="w-full">
