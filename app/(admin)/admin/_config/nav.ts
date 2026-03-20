@@ -11,6 +11,11 @@ export const adminNavItems: AdminNavItem[] = [
     href: '/admin',
   },
   {
+    title: '玩家管理',
+    description: '查看和修改玩家数据',
+    href: '/admin/players',
+  },
+  {
     title: '用户反馈',
     description: '查看和管理用户反馈',
     href: '/admin/feedback',
