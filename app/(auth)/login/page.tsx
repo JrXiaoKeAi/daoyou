@@ -70,7 +70,7 @@ function LoginPageContent() {
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
         options: {
-          shouldCreateUser: false,
+          shouldCreateUser: true,
           captchaToken: turnstileEnabled ? captchaToken ?? undefined : undefined,
         },
       });
@@ -80,7 +80,7 @@ function LoginPageContent() {
           throw new Error('请求过于频繁，请一个时辰后再试');
         }
         if (error.message.includes('not found')) {
-          throw new Error('未找到此真身，请先进行神识认主');
+          throw new Error('未找到此真身，系统将自动为你创建');
         }
         throw error;
       }
