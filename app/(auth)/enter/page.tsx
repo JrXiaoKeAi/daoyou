@@ -151,6 +151,10 @@ export default function EnterPage() {
               {submitting ? '界门开启中…' : '踏入道界'}
             </InkButton>
 
+            <InkButton href="/login" variant="secondary" className="w-full">
+              邮箱登录
+            </InkButton>
+
             <InkButton href="/" variant="secondary" className="w-full">
               返回官网
             </InkButton>
