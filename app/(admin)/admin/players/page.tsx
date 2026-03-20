@@ -46,6 +46,7 @@ export default function PlayersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+  const [deletingPlayer, setDeletingPlayer] = useState<Player | null>(null);
   const [saving, setSaving] = useState(false);
 
   const fetchPlayers = useCallback(async () => {
@@ -108,6 +109,25 @@ export default function PlayersPage() {
     } catch (err) {
       console.error('保存失败:', err);
       alert('保存失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingPlayer) return;
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/admin/players?id=${deletingPlayer.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete');
+      setDeletingPlayer(null);
+      fetchPlayers();
+    } catch (err) {
+      console.error('删除失败:', err);
+      alert('删除失败');
     } finally {
       setSaving(false);
     }
@@ -185,12 +205,20 @@ export default function PlayersPage() {
                     {new Date(player.updatedAt).toLocaleString('zh-CN')}
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => setEditingPlayer(player)}
-                      className="text-crimson hover:underline text-sm"
-                    >
-                      编辑
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditingPlayer(player)}
+                        className="text-crimson hover:underline text-sm"
+                      >
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => setDeletingPlayer(player)}
+                        className="text-red-600 hover:underline text-sm"
+                      >
+                        删除
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -327,6 +355,40 @@ export default function PlayersPage() {
                 className="px-4 py-2 bg-crimson text-white rounded-lg hover:bg-crimson/80 disabled:opacity-50"
               >
                 {saving ? '保存中...' : '保存'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 删除确认弹窗 */}
+      {deletingPlayer && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-paper rounded-xl border border-ink/15 max-w-md w-full">
+            <div className="p-6 border-b border-ink/10">
+              <h3 className="text-xl font-semibold text-ink">确认删除</h3>
+            </div>
+            <div className="p-6">
+              <p className="text-ink">
+                确定要删除角色 <strong>{deletingPlayer.name}</strong> 吗？
+              </p>
+              <p className="text-red-500 text-sm mt-2">
+                此操作不可恢复，该角色的所有数据将被永久删除。
+              </p>
+            </div>
+            <div className="p-6 border-t border-ink/10 flex justify-end gap-3">
+              <button
+                onClick={() => setDeletingPlayer(null)}
+                className="px-4 py-2 border border-ink/20 rounded-lg"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={saving}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {saving ? '删除中...' : '确认删除'}
               </button>
             </div>
           </div>

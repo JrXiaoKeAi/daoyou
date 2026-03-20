@@ -135,3 +135,37 @@ export const PATCH = withAdminAuth(async (request: NextRequest) => {
     return NextResponse.json({ error: '更新玩家数据失败' }, { status: 500 });
   }
 });
+
+// 删除玩家角色
+export const DELETE = withAdminAuth(async (request: NextRequest) => {
+  try {
+    const q = getExecutor();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: '缺少角色ID' }, { status: 400 });
+    }
+
+    // 检查玩家是否存在
+    const existing = await q
+      .select()
+      .from(cultivators)
+      .where(eq(cultivators.id, id))
+      .limit(1);
+
+    if (!existing.length) {
+      return NextResponse.json({ error: '角色不存在' }, { status: 404 });
+    }
+
+    // 删除角色（关联的灵根、命格等会级联删除）
+    await q
+      .delete(cultivators)
+      .where(eq(cultivators.id, id));
+
+    return NextResponse.json({ success: true, message: '角色已删除' });
+  } catch (error) {
+    console.error('删除角色失败:', error);
+    return NextResponse.json({ error: '删除角色失败' }, { status: 500 });
+  }
+});
