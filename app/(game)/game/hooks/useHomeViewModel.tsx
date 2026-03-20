@@ -42,6 +42,7 @@ export interface QuickActionItem {
   label: string;
   href: string;
   anonymousOnly?: boolean;
+  authenticatedOnly?: boolean;
 }
 
 export interface QuickActionGroup {
@@ -84,6 +85,7 @@ const quickActionGroups: QuickActionGroup[] = [
       { label: '🗂️ 探险札记', href: '/game/dungeon/history' },
       { label: '📝 意见反馈', href: '/game/settings/feedback' },
       { label: '📜 版本日志', href: '/changelog' },
+      { label: '🔐 修改密码', href: '/game/settings', authenticatedOnly: true },
       { label: '🔐 神识认主', href: '/shenshi-renzhu', anonymousOnly: true },
     ],
   },

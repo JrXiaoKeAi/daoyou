@@ -37,7 +37,13 @@ export function QuickActionsGrid({
               </InkButton>
             )}
             {group.actions
-              .filter((action) => !action.anonymousOnly || isAnonymous)
+              .filter((action) => {
+                // 匿名用户只显示 anonymousOnly 的项
+                if (isAnonymous) return action.anonymousOnly === true;
+                // 认证用户不显示 anonymousOnly 的项
+                if (action.anonymousOnly) return false;
+                return true;
+              })
               .map((action) => (
                 <InkButton
                   key={action.label}
