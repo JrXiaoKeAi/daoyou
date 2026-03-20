@@ -16,6 +16,11 @@ export const adminNavItems: AdminNavItem[] = [
     href: '/admin/players',
   },
   {
+    title: '用户账户',
+    description: '用户账号管理与密码重置',
+    href: '/admin/users',
+  },
+  {
     title: '用户反馈',
     description: '查看和管理用户反馈',
     href: '/admin/feedback',
