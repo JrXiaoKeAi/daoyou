@@ -81,11 +81,14 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
 export const POST = withAdminAuth(async (request: NextRequest) => {
   try {
     const body = await request.json();
-    const { userId, newPassword } = body;
+    const { userId } = body;
 
-    if (!userId || !newPassword) {
-      return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: '缺少用户ID' }, { status: 400 });
     }
+
+    // 固定重置密码为 123456
+    const newPassword = '123456';
 
     // 使用 Supabase Admin API 重置密码
     const response = await fetch(
@@ -106,7 +109,7 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
       throw new Error(error.error_message || '重置密码失败');
     }
 
-    return NextResponse.json({ success: true, message: '密码重置成功' });
+    return NextResponse.json({ success: true, message: '密码已重置为 123456' });
   } catch (error) {
     console.error('重置密码失败:', error);
     return NextResponse.json({ error: '重置密码失败' }, { status: 500 });

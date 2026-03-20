@@ -16,7 +16,6 @@ export default function UsersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
   const [resettingUser, setResettingUser] = useState<User | null>(null);
-  const [newPassword, setNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
 
   const fetchUsers = useCallback(async () => {
@@ -51,7 +50,7 @@ export default function UsersPage() {
   }, [fetchUsers]);
 
   const handleResetPassword = async () => {
-    if (!resettingUser || !newPassword) return;
+    if (!resettingUser) return;
     setSaving(true);
     try {
       const response = await fetch('/api/admin/users', {
@@ -59,13 +58,12 @@ export default function UsersPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: resettingUser.id, newPassword }),
+        body: JSON.stringify({ userId: resettingUser.id }),
       });
 
       if (!response.ok) throw new Error('Failed to reset password');
-      alert('密码重置成功');
+      alert('密码已重置为 123456');
       setResettingUser(null);
-      setNewPassword('');
     } catch (err) {
       console.error('重置密码失败:', err);
       alert('重置密码失败');
@@ -186,28 +184,21 @@ export default function UsersPage() {
               <h3 className="text-xl font-semibold text-ink">重置密码</h3>
               <p className="text-sm text-ink-secondary mt-1">用户ID: {resettingUser.id.slice(0, 8)}...</p>
             </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm text-ink-secondary mb-1">新密码</label>
-                <input
-                  type="text"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="输入新密码"
-                  className="w-full px-3 py-2 border border-ink/20 rounded-lg"
-                />
-              </div>
+            <div className="p-6">
+              <p className="text-ink">
+                确定要将该用户密码重置为 <strong>123456</strong> 吗？
+              </p>
             </div>
             <div className="p-6 border-t border-ink/10 flex justify-end gap-3">
               <button
-                onClick={() => { setResettingUser(null); setNewPassword(''); }}
+                onClick={() => setResettingUser(null)}
                 className="px-4 py-2 border border-ink/20 rounded-lg"
               >
                 取消
               </button>
               <button
                 onClick={handleResetPassword}
-                disabled={saving || !newPassword}
+                disabled={saving}
                 className="px-4 py-2 bg-crimson text-white rounded-lg hover:bg-crimson/80 disabled:opacity-50"
               >
                 {saving ? '重置中...' : '确认重置'}
