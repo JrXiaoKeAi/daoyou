@@ -22,7 +22,8 @@ function LoginPageContent() {
 
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'email' | 'otp'>('email');
+  const [password, setPassword] = useState('');
+  const [step, setStep] = useState<'email' | 'otp' | 'password'>('email');
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -128,6 +129,40 @@ function LoginPageContent() {
     }
   };
 
+  const handlePasswordLogin = async () => {
+    if (!email.trim()) {
+      pushToast({ message: '请输入飞鸽传书地址', tone: 'warning' });
+      return;
+    }
+    if (!password.trim()) {
+      pushToast({ message: '请输入登录口令', tone: 'warning' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+      });
+
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('飞鸽传书地址或口令有误');
+        }
+        throw error;
+      }
+
+      pushToast({ message: '真身归位成功', tone: 'success' });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : '登录失败，请稍后重试';
+      pushToast({ message: errorMessage, tone: 'danger' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (isLoading || processing) {
     return (
       <div className="bg-paper flex min-h-screen items-center justify-center">
@@ -175,6 +210,13 @@ function LoginPageContent() {
               >
                 {loading ? '发送中…' : '发送召唤符'}
               </InkButton>
+
+              <button
+                onClick={() => setStep('password')}
+                className="w-full text-center text-sm text-ink-secondary hover:text-ink underline"
+              >
+                使用口令登录
+              </button>
 
               {turnstileEnabled ? (
                 <TurnstileCaptcha
@@ -237,6 +279,56 @@ function LoginPageContent() {
                 • 请检查垃圾邮件文件夹
                 <br />• 稍等片刻后点击重发
               </InkNotice>
+            </div>
+          </>
+        )}
+
+        {step === 'password' && (
+          <>
+            <InkNotice>
+              使用口令直接登录
+            </InkNotice>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm opacity-70">
+                  飞鸽传书地址（邮箱）
+                </label>
+                <InkInput
+                  value={email}
+                  onChange={(value) => setEmail(value)}
+                  placeholder="例：daoyou@xiuxian.com"
+                  disabled={loading}
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm opacity-70">
+                  登录口令
+                </label>
+                <InkInput
+                  value={password}
+                  onChange={(value) => setPassword(value)}
+                  placeholder="请输入登录口令"
+                  disabled={loading}
+                />
+              </div>
+
+              <InkButton
+                onClick={handlePasswordLogin}
+                variant="primary"
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? '登录中…' : '口令登录'}
+              </InkButton>
+
+              <button
+                onClick={() => setStep('email')}
+                className="w-full text-center text-sm text-ink-secondary hover:text-ink underline"
+              >
+                使用召唤符登录
+              </button>
             </div>
           </>
         )}
