@@ -23,7 +23,7 @@ function LoginPageContent() {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
-  const [step, setStep] = useState<'email' | 'otp' | 'password'>('email');
+  const [step, setStep] = useState<'email' | 'otp' | 'password' | 'signup'>('email');
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -157,6 +157,48 @@ function LoginPageContent() {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : '登录失败，请稍后重试';
+      pushToast({ message: errorMessage, tone: 'danger' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (!email.trim()) {
+      pushToast({ message: '请输入飞鸽传书地址', tone: 'warning' });
+      return;
+    }
+    if (!password.trim()) {
+      pushToast({ message: '请输入登录口令', tone: 'warning' });
+      return;
+    }
+    if (password.trim().length < 6) {
+      pushToast({ message: '口令至少6位', tone: 'warning' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/game`,
+        },
+      });
+
+      if (error) {
+        if (error.message.includes('already been registered')) {
+          throw new Error('此飞鸽传书地址已被注册');
+        }
+        throw error;
+      }
+
+      pushToast({ message: '注册成功，请使用口令登录', tone: 'success' });
+      setStep('password');
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : '注册失败，请稍后重试';
       pushToast({ message: errorMessage, tone: 'danger' });
     } finally {
       setLoading(false);
@@ -323,12 +365,78 @@ function LoginPageContent() {
                 {loading ? '登录中…' : '口令登录'}
               </InkButton>
 
-              <button
-                onClick={() => setStep('email')}
-                className="w-full text-center text-sm text-ink-secondary hover:text-ink underline"
+              <div className="flex justify-between">
+                <button
+                  onClick={() => setStep('signup')}
+                  className="text-sm text-ink-secondary hover:text-ink"
+                >
+                  注册新账号
+                </button>
+                <button
+                  onClick={() => setStep('email')}
+                  className="text-sm text-ink-secondary hover:text-ink"
+                >
+                  使用召唤符登录
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 'signup' && (
+          <>
+            <InkNotice>
+              注册新账号
+            </InkNotice>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm opacity-70">
+                  飞鸽传书地址（邮箱）
+                </label>
+                <InkInput
+                  value={email}
+                  onChange={(value) => setEmail(value)}
+                  placeholder="例：daoyou@xiuxian.com"
+                  disabled={loading}
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm opacity-70">
+                  设置登录口令（至少6位）
+                </label>
+                <InkInput
+                  value={password}
+                  onChange={(value) => setPassword(value)}
+                  placeholder="请设置登录口令"
+                  disabled={loading}
+                />
+              </div>
+
+              <InkButton
+                onClick={handleSignUp}
+                variant="primary"
+                disabled={loading}
+                className="w-full"
               >
-                使用召唤符登录
-              </button>
+                {loading ? '注册中…' : '注册账号'}
+              </InkButton>
+
+              <div className="flex justify-between">
+                <button
+                  onClick={() => setStep('password')}
+                  className="text-sm text-ink-secondary hover:text-ink"
+                >
+                  已有账号？登录
+                </button>
+                <button
+                  onClick={() => setStep('email')}
+                  className="text-sm text-ink-secondary hover:text-ink"
+                >
+                  使用召唤符
+                </button>
+              </div>
             </div>
           </>
         )}
