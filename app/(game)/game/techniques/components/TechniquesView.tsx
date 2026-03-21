@@ -14,8 +14,7 @@ import { useTechniquesViewModel } from '../hooks/useTechniquesViewModel';
 import { TechniqueDetailModal } from './TechniqueDetailModal';
 
 /**
- * 功法主视图组件
- */
+ * 功法主视图组�? */
 export function TechniquesView() {
   const pathname = usePathname();
   const {
@@ -33,33 +32,31 @@ export function TechniquesView() {
     showEffectHelp,
   } = useTechniquesViewModel();
 
-  // 加载状态
-  if (isLoading && !cultivator) {
+  // 加载状�?  if (isLoading && !cultivator) {
     return (
       <div className="bg-paper flex min-h-screen items-center justify-center">
-        <p className="loading-tip">功法卷轴徐徐展开……</p>
+        <p className="loading-tip">功法卷轴徐徐展开…�?/p>
       </div>
     );
   }
 
   return (
     <InkPageShell
-      title="【所修功法】"
-      subtitle={`共 ${techniques.length} 部`}
+      title="【所修功法�?
+      subtitle={`�?${techniques.length} 部`}
       backHref="/game"
       note={note}
       currentPath={pathname}
       footer={
         <InkActionGroup align="between">
           <InkButton href="/game">返回</InkButton>
-          <InkButton href="/game/genlightenment" variant="primary">
-            藏经阁 →
-          </InkButton>
+          <InkButton href="/game/enlightenment" variant="primary">
+            藏经�?�?          </InkButton>
         </InkActionGroup>
       }
     >
       {!cultivator ? (
-        <InkNotice>还未觉醒道身，何谈功法？先去首页觉醒吧。</InkNotice>
+        <InkNotice>还未觉醒道身，何谈功法？先去首页觉醒吧�?/InkNotice>
       ) : (
         <>
           <GongFa
@@ -85,7 +82,7 @@ export function TechniquesView() {
             )}
           />
 
-          {/* 确认对话框 */}
+          {/* 确认对话�?*/}
           <InkDialog dialog={dialog} onClose={closeDialog} />
 
           {/* 功法详情弹窗 */}
